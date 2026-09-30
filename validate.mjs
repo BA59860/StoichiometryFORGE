@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {REACTIONS} from './bank.js';
-import {atoms,molarMass,solve,makeProblem,eligibleReactions,parseAnswer,closeEnough,checkCoefficients,sig,format} from './engine.js';
+import {atoms,molarMass,solve,makeProblem,eligibleReactions,parseAnswer,closeEnough,checkCoefficients,sig,format,significantFigures} from './engine.js';
 assert.equal(REACTIONS.length,50);assert.equal(new Set(REACTIONS.map(r=>r.id)).size,50);
 assert.deepEqual(atoms('Ca3(PO4)2'),{Ca:3,P:2,O:8});assert.deepEqual(atoms('C2H5OH'),{C:2,H:6,O:1});assert.deepEqual(atoms('Fe2(SO4)3'),{Fe:2,S:3,O:12});
 assert.equal(molarMass('MgO'),40.31);assert.equal(molarMass('CuCl2'),134.45);assert.equal(molarMass('Ca3(PO4)2'),310.18);
@@ -11,6 +11,8 @@ const mg=solve({reaction:REACTIONS[0],target:0,given:[{index:0,mass:12}],actual:
 for(const text of ['1.25e-3','1.25 × 10^-3','1.25 x 10^−3','0.00125'])assert.equal(parseAnswer(text),.00125);
 for(const text of ['','NaN','Infinity','-2','0','2 g','1/2','2..3','1e999'])assert.equal(parseAnswer(text),null);
 assert.equal(format(100),'100.');assert.equal(format(120),'120.');assert.equal(format(1000),'1.00 × 10^3');
+for(const [text,count] of [['5.00',3],['0.00450',3],['19.90',4],['.00120',3],['+1.20e2',3],['1.20 × 10^−3',3],['120.',3],['100.',3],['120',null],['1e2',1],['12',2],['2.0000',5],['1e999',null]])assert.equal(significantFigures(text),count,text);
+const counter=solve({reaction:REACTIONS[0],target:0,given:[{index:0,mass:1},{index:1,mass:.8}],actual:null});assert.equal(counter.limiting,0);assert.equal(format(counter.paths[0].yield),'1.66');assert.equal(format(counter.paths[1].yield),'2.02');
 assert.throws(()=>makeProblem({track:'limiting',reactionId:9}));assert.throws(()=>makeProblem({reactionId:999}));
 let seed=71209;const rng=()=>((seed=(seed*1664525+1013904223)>>>0)/4294967296);let cases=0;const seenLimits=new Set();
 for(const track of ['mass','limiting','percent'])for(const reaction of eligibleReactions(track))for(let j=0;j<100;j++){
@@ -21,4 +23,4 @@ for(const track of ['mass','limiting','percent'])for(const reaction of eligibleR
 assert.equal(seenLimits.size,2);
 for(const track of ['mass','limiting','percent','mixed'])for(const edge of [0,1-Number.EPSILON]){const p=makeProblem({track},()=>edge);assert.ok(solve(p).theoretical>0);}
 for(let j=0;j<100;j++)assert.notEqual(makeProblem({track:'mixed',reactionId:9},rng).track,'limiting');
-console.log(`PASS: 50 balanced reactions; ${cases} generated cases; limiting-reactant feasibility, percent yields, rounding, scientific notation, and independent calculation fixtures.`);
+console.log(`PASS: 50 balanced reactions; ${cases} generated cases; limiting-reactant feasibility, percent yields, rounding, significant-figure feedback inputs, scientific notation, and independent calculation fixtures.`);

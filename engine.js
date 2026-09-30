@@ -33,11 +33,19 @@ export function makeProblem(options={},rng=Math.random){
   if(track==='percent')p.actual=sig(solve(p).theoretical*(.45+rng()*.53));
   return p;
 }
+const normalizeAnswer=text=>String(text).trim().replace(/[−–]/g,'-').replace(/\s*[×x*]\s*10\s*\^\s*/i,'e').replace(/\s+/g,'');
 export function parseAnswer(text){
   // Accept ordinary decimals and scientific notation; units are supplied by the form.
-  const normalized=String(text).trim().replace(/[−–]/g,'-').replace(/\s*[×x*]\s*10\s*\^\s*/i,'e').replace(/\s+/g,'');
+  const normalized=normalizeAnswer(text);
   if(!/^[+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(normalized))return null;
   const n=Number(normalized);return Number.isFinite(n)&&n>0?n:null;
+}
+export function significantFigures(text){
+  if(parseAnswer(text)===null)return null;
+  const normalized=normalizeAnswer(text),mantissa=normalized.split(/e/i)[0].replace(/^\+/,'');
+  // Unmarked trailing zeros in a whole number do not specify a unique precision.
+  if(!mantissa.includes('.')&&!/e/i.test(normalized)&&mantissa.endsWith('0'))return null;
+  return mantissa.replace('.','').replace(/^0+/,'').length;
 }
 export const closeEnough=(value,expected)=>value!==null&&Math.abs(value-expected)<=Math.abs(expected)*.005+1e-10;
 export function checkCoefficients(reaction,values){

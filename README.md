@@ -4,7 +4,7 @@ Mass stoichiometry practice for CHMY 121, in the FORGE fire, ice and polished br
 
 ## Learning and practice
 
-- Three short lessons: mass-to-mass calculations, limiting reactants, and percent yield.
+- Three guided lessons: a grams → moles → moles → grams diagram with unit cancellation, a visual comparison for limiting reactants, and percent yield. Significant figures are explained in every lesson.
 - Fifty fixed, balanced chemical equations with randomized quantities and selected target products.
 - Theoretical yield, limiting reactant plus yield, percent yield, and mixed practice.
 - Balanced equations supplied, or an optional balance-first step.
@@ -13,7 +13,7 @@ Mass stoichiometry practice for CHMY 121, in the FORGE fire, ice and polished br
 
 Amounts are masses in grams. Aqueous species use grams of solute, not grams of total solution; salts use the anhydrous formula shown. One-reactant problems explicitly place other reactants in excess. Two-reactant problems apply only to the 42 two-reactant equations. Combustion, precipitation, and equilibrium examples state their idealized model assumptions.
 
-The generator rounds givens to three significant figures before calculating answers, uses the displayed two-decimal molar masses, and retains precision through the calculation. Actual yields remain below theoretical yield. The numerical checker accepts a 0.5% relative tolerance; it encourages three significant figures without separately grading significant-figure formatting. Limiting reactants are generated with at least 25% molar excess before rounding. Revealed solutions do not count as independently solved.
+The generator rounds givens to three significant figures before calculating answers, uses the displayed two-decimal molar masses, and retains precision through the calculation. Actual yields remain below theoretical yield. The numerical checker accepts a 0.5% relative tolerance; it accepts correct calculations and gives a separate rounding tip when an entry does not report the expected three-significant-figure answer. Decimal and scientific notation retain their stated precision; bare whole numbers ending in zero prompt an ambiguity reminder. Limiting reactants are generated with at least 25% molar excess before rounding. Revealed solutions do not count as independently solved.
 
 Only the shared FORGE theme preference is saved locally. Practice progress lasts for the current visit. No login or external service is required.
 
