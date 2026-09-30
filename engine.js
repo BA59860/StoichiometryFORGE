@@ -33,21 +33,50 @@ export function makeProblem(options={},rng=Math.random){
   if(track==='percent')p.actual=sig(solve(p).theoretical*(.45+rng()*.53));
   return p;
 }
-const normalizeAnswer=text=>String(text).trim().replace(/[−–]/g,'-').replace(/\s*[×x*]\s*10\s*\^\s*/i,'e').replace(/\s+/g,'');
-export function parseAnswer(text){
-  // Accept ordinary decimals and scientific notation; units are supplied by the form.
-  const normalized=normalizeAnswer(text);
+const normalizeAnswer=(text,unit=null)=>{
+  let value=String(text).trim();
+  if(value.length>128)return null;
+  // Only the unit requested by this field may be omitted from the numeric input.
+  if(unit==='g')value=value.replace(/\s*g$/i,'').trim();
+  if(unit==='%')value=value.replace(/\s*%$/,'').trim();
+  value=value.replace(/[−–]/g,'-');
+  const superscripts={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9','⁻':'-','⁺':'+'};
+  value=value.replace(/([×x*]\s*10)([⁺⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+)$/i,(_,base,power)=>base+'^'+[...power].map(c=>superscripts[c]).join(''));
+  value=value.replace(/\s*[×x*]\s*10\s*\^?\s*([+-]?)\s*(\d+)$/i,(_,sign,power)=>'e'+sign+power);
+  value=value.replace(/\s*e\s*([+-]?)\s*(\d+)$/i,(_,sign,power)=>'e'+sign+power);
+  // A single comma is a decimal mark, never a thousands separator.
+  if(value.includes(',')&&value.includes('.'))return null;
+  return value.replace(',','.');
+};
+export function parseAnswer(text,unit=null){
+  const normalized=normalizeAnswer(text,unit);
+  if(normalized===null)return null;
   if(!/^[+]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(normalized))return null;
   const n=Number(normalized);return Number.isFinite(n)&&n>0?n:null;
 }
-export function significantFigures(text){
-  if(parseAnswer(text)===null)return null;
-  const normalized=normalizeAnswer(text),mantissa=normalized.split(/e/i)[0].replace(/^\+/,'');
+export function significantFigures(text,unit=null){
+  if(parseAnswer(text,unit)===null)return null;
+  const normalized=normalizeAnswer(text,unit),mantissa=normalized.split(/e/i)[0].replace(/^\+/,'');
   // Unmarked trailing zeros in a whole number do not specify a unique precision.
   if(!mantissa.includes('.')&&!/e/i.test(normalized)&&mantissa.endsWith('0'))return null;
   return mantissa.replace('.','').replace(/^0+/,'').length;
 }
 export const closeEnough=(value,expected)=>value!==null&&Math.abs(value-expected)<=Math.abs(expected)*.005+1e-10;
+export function looksLikeEarlyRounding(p,value,kind='mass'){
+  if(value===null||!Number.isFinite(value)||value<=0)return false;
+  const exact=solve(p),expected=kind==='percent'?exact.percent:exact.theoretical;
+  if(expected===null||closeEnough(value,expected))return false;
+  const product=p.reaction.products[p.target];
+  // Model common stepwise rounding without loosening the numerical acceptance rule.
+  const yields=[false,true].map(roundProductMoles=>Math.min(...p.given.map(g=>{
+    const r=p.reaction.reactants[g.index];
+    const moles=sig(g.mass/molarMass(r.formula));
+    const productMoles=moles*product.coefficient/r.coefficient;
+    return sig((roundProductMoles?sig(productMoles):productMoles)*molarMass(product.formula));
+  })));
+  const candidates=kind==='percent'?p.actual===null?[]:[...yields,sig(exact.theoretical)].map(y=>sig(p.actual/y*100)):yields;
+  return candidates.some(candidate=>Math.abs(value-candidate)<=Math.abs(candidate)*1e-12);
+}
 export function checkCoefficients(reaction,values){
   const expected=[...reaction.reactants,...reaction.products].map(s=>s.coefficient);
   if(values.length!==expected.length||values.some(v=>!Number.isSafeInteger(v)||v<1))return 'Use a positive whole-number coefficient in every box, including 1.';

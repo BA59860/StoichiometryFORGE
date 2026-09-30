@@ -15,7 +15,9 @@ Amounts are masses in grams. Aqueous species use grams of solute, not grams of t
 
 The generator rounds givens to three significant figures before calculating answers, uses the displayed two-decimal molar masses, and retains precision through the calculation. Actual yields remain below theoretical yield. The numerical checker accepts a 0.5% relative tolerance; it accepts correct calculations and gives a separate rounding tip when an entry does not report the expected three-significant-figure answer. Decimal and scientific notation retain their stated precision; bare whole numbers ending in zero prompt an ambiguity reminder. Limiting reactants are generated with at least 25% molar excess before rounding. Revealed solutions do not count as independently solved.
 
-Only the shared FORGE theme preference is saved locally. Practice progress lasts for the current visit. No login or external service is required.
+Answer fields accept their matching optional unit (g or %), one decimal point or decimal comma, and scientific notation with e, ×10^, ×10 followed by an exponent, or a superscript exponent. Commas are decimal marks, not thousands separators; mixed separators, wrong units, and non-numeric content are rejected. Significant-figure feedback preserves the precision of these input forms. Answers matching common intermediate-rounding calculations receive a specific retry hint; the 0.5% acceptance tolerance is unchanged.
+
+Only the shared FORGE theme preference is saved locally. Practice progress lasts for the current visit. The Practice screen explains that refresh or closing the page resets progress, and scores are not sent to the instructor. No login or external service is required.
 
 ## Run and validate
 
